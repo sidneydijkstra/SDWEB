@@ -14,8 +14,12 @@
     <!-- Fragment shader program -->
 
     <script id="shader-fs" type="x-shader/x-fragment">
+        varying lowp vec4 Color;
+
         void main(void) {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            gl_FragColor = Color;
+            //gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+            //gl_FragColor = vec4(1.0,1.0,1.0,1);
         }
     </script>
 
@@ -26,9 +30,13 @@
 
       uniform mat4 uMVMatrix;
       uniform mat4 uPMatrix;
+      uniform vec4 aColor;
+
+      varying lowp vec4 Color;
 
       void main(void) {
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        Color = aColor;
       }
     </script>
 

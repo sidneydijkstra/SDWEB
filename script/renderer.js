@@ -73,7 +73,7 @@ function run() {
     alert("ERROR: Unable to load webGL!");
   }
 }
-
+var rot = 90;
 // draw the scene [main loop]
 function drawScene() {
   // Clear the canvas before we start drawing on it.
@@ -85,10 +85,14 @@ function drawScene() {
   // and 100 units away from the camera.
   perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
 
-  // Set the drawing position to the "identity" point, which is
-  // the center of the scene.
+  // rotate
+  var inRadians = rot * Math.PI / 180.0;
+  rot++;
+
+  // set matrix vars
   mvMatrix = Matrix.I(4);
   mvMatrix = mvMatrix.x(mvMatrix.x(Matrix.Translation($V([-0.0, 0.0, -6.0])).ensure4x4()));
+  mvMatrix = mvMatrix.x(Matrix.Rotation(inRadians, $V([1.0, -1.0, 1.0])).ensure4x4());
 
 
   // Draw the square by binding the array buffer to the square's vertices
@@ -97,7 +101,7 @@ function drawScene() {
   gl.enableVertexAttribArray(vertexPositionAttribute);
 
   // bind the squareVerticesBuffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, SVB);
+  gl.bindBuffer(gl.ARRAY_BUFFER, CVB);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
   // bind the pUniform
@@ -108,28 +112,75 @@ function drawScene() {
   var mvUniform = gl.getUniformLocation(shader.program(), "uMVMatrix");
   gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 
+  // bind the aColor
+  var cUniform = gl.getUniformLocation(shader.program(), "aColor");
+  gl.uniform4fv(cUniform, [1.0, 3.8, 0.5, 1]);  // offset it to the right half the screen
+
+  // bind guffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
   // draw arrays
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 }
 
+// init buffer
 function initBuffers() {
-  // Now create an array of vertices for the square. Note that the Z
-  // coordinate is always 0 here.
+  // normal vertices
   var vertices = [
-    1.0,  1.0,  0.0,
-    -1.0, 1.0,  0.0,
-    1.0,  -1.0, 0.0,
-    -1.0, -1.0, 0.0
+    // Front face
+    -1.0, -1.0,  1.0,
+     1.0, -1.0,  1.0,
+     1.0,  1.0,  1.0,
+    -1.0,  1.0,  1.0,
+
+    // Back face
+    -1.0, -1.0, -1.0,
+    -1.0,  1.0, -1.0,
+     1.0,  1.0, -1.0,
+     1.0, -1.0, -1.0,
+
+    // Top face
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+     1.0,  1.0,  1.0,
+     1.0,  1.0, -1.0,
+
+    // Bottom face
+    -1.0, -1.0, -1.0,
+     1.0, -1.0, -1.0,
+     1.0, -1.0,  1.0,
+    -1.0, -1.0,  1.0,
+
+    // Right face
+     1.0, -1.0, -1.0,
+     1.0,  1.0, -1.0,
+     1.0,  1.0,  1.0,
+     1.0, -1.0,  1.0,
+
+    // Left face
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    -1.0,  1.0, -1.0
   ];
 
-  // Create a buffer for the square's vertices.
-  SVB = gl.createBuffer();
+  // normal vertex indices
+  var cubeVertexIndices = [
+    0,  1,  2,      0,  2,  3,    // front
+    4,  5,  6,      4,  6,  7,    // back
+    8,  9,  10,     8,  10, 11,   // top
+    12, 13, 14,     12, 14, 15,   // bottom
+    16, 17, 18,     16, 18, 19,   // right
+    20, 21, 22,     20, 22, 23    // left
+  ];
 
-  // bind the buffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, SVB);
-
-  // Now pass the list of vertices into WebGL to build the shape. We
-  // do this by creating a Float32Array from the JavaScript array,
-  // then use it to fill the current vertex buffer.
+  // Create a buffer for the cubeVerticesBuffer
+  CVB = gl.createBuffer(); //cubeVerticesBuffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, CVB);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+  // Build the element array buffer; this specifies the indices
+  // into the vertex array for each face's vertices.
+  cubeVerticesIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
 }
