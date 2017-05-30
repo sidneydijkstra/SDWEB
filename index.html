@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>SDWEB webGL framework</title>
 
+    <script type="text/javascript" src="script/texture.js"></script>
     <script type="text/javascript" src="script/shader.js"></script>
     <script type="text/javascript" src="script/renderer.js"></script>
     <script type="text/javascript" src="script/main.js"></script>
@@ -14,11 +15,14 @@
     <!-- Fragment shader program -->
 
     <script id="shader-fs" type="x-shader/x-fragment">
+        varying highp vec2 vTextureCoord;
         varying lowp vec4 Color;
+        
+        uniform sampler2D uSampler;
 
         void main(void) {
-            gl_FragColor = Color;
-            //gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+            //gl_FragColor = Color;
+            gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
             //gl_FragColor = vec4(1.0,1.0,1.0,1);
         }
     </script>
@@ -27,16 +31,19 @@
 
     <script id="shader-vs" type="x-shader/x-vertex">
       attribute vec3 aVertexPosition;
+      attribute vec2 aTextureCoord;
 
       uniform mat4 uMVMatrix;
       uniform mat4 uPMatrix;
       uniform vec4 aColor;
 
       varying lowp vec4 Color;
+      varying highp vec2 vTextureCoord;
 
       void main(void) {
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         Color = aColor;
+        vTextureCoord = aTextureCoord;
       }
     </script>
 

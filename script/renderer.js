@@ -7,6 +7,12 @@ var canvas;
 // shader
 var shader;
 
+// texture
+var texture;
+
+// my texture
+var myTexture;
+
 // constructor
 function renderer(){
     // get the canvas
@@ -31,6 +37,12 @@ function renderer(){
 
     // get shader
     shader = new shader("shader-fs","shader-vs");
+
+    // get texture
+    texture = new texture();
+
+    // load texture
+    myTexture = texture.loadTexture("assets/galax.jpg");
 
     // use the run function
     run();
@@ -73,16 +85,14 @@ function run() {
     alert("ERROR: Unable to load webGL!");
   }
 }
+
 var rot = 90;
 // draw the scene [main loop]
 function drawScene() {
   // Clear the canvas before we start drawing on it.
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // Establish the perspective with which we want to view the
-  // scene. Our field of view is 45 degrees, with a width/height
-  // ratio of 640:480, and we only want to see objects between 0.1 units
-  // and 100 units away from the camera.
+  // make a perspective
   perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
 
   // rotate
@@ -94,15 +104,24 @@ function drawScene() {
   mvMatrix = mvMatrix.x(mvMatrix.x(Matrix.Translation($V([-0.0, 0.0, -6.0])).ensure4x4()));
   mvMatrix = mvMatrix.x(Matrix.Rotation(inRadians, $V([1.0, -1.0, 1.0])).ensure4x4());
 
+  // get texture cord attribute
+  textureCoordAttribute = gl.getAttribLocation(shader.program(), "aTextureCoord");
+  gl.enableVertexAttribArray(textureCoordAttribute);
 
-  // Draw the square by binding the array buffer to the square's vertices
-  // array, setting attributes, and pushing it to GL.
+  // get vertex position attribute
   var vertexPositionAttribute = gl.getAttribLocation(shader.program(), "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
 
-  // bind the squareVerticesBuffer
+  // bind the CVB
   gl.bindBuffer(gl.ARRAY_BUFFER, CVB);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // bind the CVTB
+  gl.bindBuffer(gl.ARRAY_BUFFER, CVTB);
+  gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
+  // bind the CVIB
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, CVIB);
 
   // bind the pUniform
   var pUniform = gl.getUniformLocation(shader.program(), "uPMatrix");
@@ -113,11 +132,14 @@ function drawScene() {
   gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 
   // bind the aColor
-  var cUniform = gl.getUniformLocation(shader.program(), "aColor");
-  gl.uniform4fv(cUniform, [1.0, 3.8, 0.5, 1]);  // offset it to the right half the screen
+  //var cUniform = gl.getUniformLocation(shader.program(), "aColor");
+  //gl.uniform4fv(cUniform, [1.0, 3.8, 0.5, 1]);  // offset it to the right half the screen
 
-  // bind guffer
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
+  // bind the texture
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+  gl.uniform1i(gl.getUniformLocation(shader.program(), "uSampler"), 0);
+
   // draw arrays
   gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 }
@@ -173,14 +195,53 @@ function initBuffers() {
     20, 21, 22,     20, 22, 23    // left
   ];
 
+  // normal texture coordinates
+  var textureCoordinates = [
+    // Front
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Top
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Right
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Left
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0
+  ];
+
+  // Create a buffer for the cubeVerticesTextureCoordBuffer
+  CVTB = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, CVTB);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+
   // Create a buffer for the cubeVerticesBuffer
   CVB = gl.createBuffer(); //cubeVerticesBuffer
   gl.bindBuffer(gl.ARRAY_BUFFER, CVB);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
-  // Build the element array buffer; this specifies the indices
-  // into the vertex array for each face's vertices.
-  cubeVerticesIndexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
+
+  // Create a buffer for the cubeVerticesIndexBuffer
+  CVIB = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, CVIB);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
 }
