@@ -13,6 +13,13 @@ var texture;
 // my texture
 var myTexture;
 
+// meshes
+var mesh_1;
+var mesh_2;
+
+// camera
+var Camera;
+
 // constructor
 function renderer(){
     // get the canvas
@@ -41,8 +48,21 @@ function renderer(){
     // get texture
     texture = new texture();
 
-    // load texture
-    myTexture = texture.loadTexture("assets/galax.jpg");
+    // get camera
+    camera = new camera();
+
+    // get meshes
+    mesh_1 = new mesh();
+    mesh_2 = new mesh();
+
+    mesh_1.texture = texture.loadTexture("assets/stone.jpg");s
+    mesh_2.texture = texture.loadTexture("assets/galax.jpg");
+
+    mesh_1.position[1] = 1;
+    mesh_2.position[1] = -2;
+
+    mesh_1.rotation[1] = 40;
+    mesh_1.rotation[0] = 40;
 
     // use the run function
     run();
@@ -86,62 +106,86 @@ function run() {
   }
 }
 
-var rot = 90;
 // draw the scene [main loop]
 function drawScene() {
+
+  camera.update();
+
   // Clear the canvas before we start drawing on it.
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // make a perspective
-  perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+  // render 3d cubes
+  render3DCube(mesh_1, camera, shader);
+  render3DCube(mesh_2, camera, shader);
 
-  // rotate
-  var inRadians = rot * Math.PI / 180.0;
-  rot++;
+}
 
-  // set matrix vars
-  mvMatrix = Matrix.I(4);
-  mvMatrix = mvMatrix.x(mvMatrix.x(Matrix.Translation($V([-0.0, 0.0, -6.0])).ensure4x4()));
-  mvMatrix = mvMatrix.x(Matrix.Rotation(inRadians, $V([1.0, -1.0, 1.0])).ensure4x4());
+// render a 3D cube
+function render3DCube(_mesh, _camera, _shader){
+    // make matrixes
+    perspectiveMatrix = mat4.create();
+    viewMatrix = mat4.create();
+    modelMatrix = mat4.create();
 
-  // get texture cord attribute
-  textureCoordAttribute = gl.getAttribLocation(shader.program(), "aTextureCoord");
-  gl.enableVertexAttribArray(textureCoordAttribute);
+    // set perspective
+    mat4.perspective(perspectiveMatrix, 45, 640.0/480.0, 0.1, 100.0);
 
-  // get vertex position attribute
-  var vertexPositionAttribute = gl.getAttribLocation(shader.program(), "aVertexPosition");
-  gl.enableVertexAttribArray(vertexPositionAttribute);
+    // set view
+    viewMatrix = _camera.getViewMatrix();
 
-  // bind the CVB
-  gl.bindBuffer(gl.ARRAY_BUFFER, CVB);
-  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+    // set position for modelMatrix
+    mat4.translate(modelMatrix, modelMatrix, _mesh.position);
 
-  // bind the CVTB
-  gl.bindBuffer(gl.ARRAY_BUFFER, CVTB);
-  gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+    // set rotation for modelMatrix
+    mat4.rotateX(modelMatrix, modelMatrix, _mesh.rotation[0]);
+    mat4.rotateY(modelMatrix, modelMatrix, _mesh.rotation[1]);
+    mat4.rotateZ(modelMatrix, modelMatrix, _mesh.rotation[2]);
 
-  // bind the CVIB
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, CVIB);
+    // set scale for modelMatrix
+    mat4.scale(modelMatrix, modelMatrix, _mesh.scale);
 
-  // bind the pUniform
-  var pUniform = gl.getUniformLocation(shader.program(), "uPMatrix");
-  gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
+    // get texture cord attribute
+    var textureCoordAttribute = gl.getAttribLocation(_shader.program(), "aTextureCoord");
+    gl.enableVertexAttribArray(textureCoordAttribute);
 
-  // bind the mvUniform
-  var mvUniform = gl.getUniformLocation(shader.program(), "uMVMatrix");
-  gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
+    // get vertex position attribute
+    var vertexPositionAttribute = gl.getAttribLocation(_shader.program(), "aVertexPosition");
+    gl.enableVertexAttribArray(vertexPositionAttribute);
 
-  // bind the aColor
-  //var cUniform = gl.getUniformLocation(shader.program(), "aColor");
-  //gl.uniform4fv(cUniform, [1.0, 3.8, 0.5, 1]);  // offset it to the right half the screen
+    // bind the CVB
+    gl.bindBuffer(gl.ARRAY_BUFFER, CVB);
+    gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-  // bind the texture
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
-  gl.uniform1i(gl.getUniformLocation(shader.program(), "uSampler"), 0);
+    // bind the CVTB
+    gl.bindBuffer(gl.ARRAY_BUFFER, CVTB);
+    gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
 
-  // draw arrays
-  gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+    // bind the CVIB
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, CVIB);
+
+    // bind the pUniform
+    var perspectiveUniform = gl.getUniformLocation(_shader.program(), "perspective");
+    gl.uniformMatrix4fv(perspectiveUniform, false, new Float32Array(perspectiveMatrix));
+
+    // bind the view
+    var viewUniform = gl.getUniformLocation(_shader.program(), "view");
+    gl.uniformMatrix4fv(viewUniform, false, new Float32Array(viewMatrix));
+
+    // bind the mvUniform
+    var modelUniform = gl.getUniformLocation(_shader.program(), "model");
+    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelMatrix));
+
+    // bind the aColor
+    //var cUniform = gl.getUniformLocation(shader.program(), "aColor");
+    //gl.uniform4fv(cUniform, [1.0, 3.8, 0.5, 1]);  // offset it to the right half the screen
+
+    // bind the texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, _mesh.texture);
+    gl.uniform1i(gl.getUniformLocation(_shader.program(), "uSampler"), 0);
+
+    // draw arrays
+    gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 }
 
 // init buffer

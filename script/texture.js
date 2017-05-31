@@ -4,10 +4,11 @@ function texture(){
 
   // load new texture
   this.loadTexture = function (location) {
-    cubeTexture = gl.createTexture();
-    cubeImage = new Image();
+    var cubeTexture = gl.createTexture();
+    var cubeImage = new Image();
     cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture, location); }
     cubeImage.src = location;
+    return cubeTexture;
   }
 
 
