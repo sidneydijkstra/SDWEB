@@ -10,8 +10,8 @@ var shader;
 // texture
 var texture;
 
-// my texture
-var myTexture;
+// input
+var input;
 
 // meshes
 var mesh_1;
@@ -50,6 +50,11 @@ function renderer(){
 
     // get camera
     camera = new camera();
+    //camera.position = [5,0,0];
+
+    // get input
+    input = new input();
+    //alert(input.keycode.A);
 
     // get meshes
     mesh_1 = new mesh();
@@ -61,8 +66,8 @@ function renderer(){
     mesh_1.position[1] = 1;
     mesh_2.position[1] = -2;
 
-    mesh_1.rotation[1] = 40;
     mesh_1.rotation[0] = 40;
+    mesh_1.rotation[1] = 40;
 
     // use the run function
     run();
@@ -117,6 +122,42 @@ function drawScene() {
   // render 3d cubes
   render3DCube(mesh_1, camera, shader);
   render3DCube(mesh_2, camera, shader);
+
+  // rotate mesh 1
+  mesh_1.rotation[0] += 0.01;
+  mesh_1.rotation[1] += 0.01;
+
+  // rotate mesh 2
+  mesh_2.rotation[1] += 0.01;
+
+  // move camera
+
+  // left right
+  if(input.getKey(input.keycode.A)){
+    camera.position[2] -= 0.1;
+  }
+  if(input.getKey(input.keycode.D)){
+    camera.position[2] += 0.1;
+  }
+
+  // forward backwards
+  if(input.getKey(input.keycode.W)){
+    camera.position[0] += 0.1;
+  }
+  if(input.getKey(input.keycode.S)){
+    camera.position[0] -= 0.1;
+  }
+
+  // up down
+  if(input.getKey(input.keycode.SHIFT)){
+    camera.position[1] -= 0.1;
+  }
+  if(input.getKey(input.keycode.SPACE)){
+    camera.position[1] += 0.1;
+  }
+
+
+
 
 }
 

@@ -1,32 +1,31 @@
 
-var position = vec3.create();
-
-var yaw = 0;
-var pitch = 0;
-
-var front = vec3.create();
 
 // constructor
 function camera(){
 
-  position.x = -5;
+  this.position = vec3.create();
+  this.yaw = 0;
+  this.pitch = 0;
+  this.front = vec3.create();
+
+  this.position = [-5,0,0];
 
   // camera update function
   this.update = function(){
     var front_ = vec3.create();
-    front_.x = Math.cos(yaw * (Math.PI / 180)) * Math.cos((pitch * (Math.PI / 180)));
-    front_.y = Math.sin(pitch * (Math.PI / 180));
-    front_.z = Math.sin(yaw * (Math.PI / 180)) * Math.cos(pitch * (Math.PI / 180));
-    vec3.normalize(front, front_);
+    front_[0] = Math.cos(this.yaw * (Math.PI / 180)) * Math.cos((this.pitch * (Math.PI / 180)));
+    front_[1] = Math.sin(this.pitch * (Math.PI / 180));
+    front_[2] = Math.sin(this.yaw * (Math.PI / 180)) * Math.cos(this.pitch * (Math.PI / 180));
+    vec3.normalize(this.front, front_);
   }
 
   // get view matrix
   this.getViewMatrix = function(){
     var frontPos = vec3.create();
-    vec3.add(frontPos, position, front);
-    var modelview = mat4.create();
+    var modelview = new Float32Array(16);
+    vec3.add(frontPos, this.position, this.front);
     // matrix, eye, pos, up
-    mat4.lookAt(modelview, [-5,0,0], frontPos, [0,1,0]);
+    mat4.lookAt(modelview, this.position, frontPos, [0,1,0]);
     return modelview;
   }
 

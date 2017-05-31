@@ -4,10 +4,9 @@
     <meta charset="utf-8">
     <title>SDWEB webGL framework</title>
 
-    <script src="externals/sylvester.js" type="text/javascript"></script>
-    <script src="externals/glUtils.js" type="text/javascript"></script>
-    <script src="externals/mat/dist/gl-matrix.js" type="text/javascript"></script>
+    <script src="externals/mat/dist/gl-matrix-min.js" type="text/javascript"></script>
 
+    <script type="text/javascript" src="script/input.js"></script>
     <script type="text/javascript" src="script/mesh.js"></script>
     <script type="text/javascript" src="script/camera.js"></script>
     <script type="text/javascript" src="script/texture.js"></script>
@@ -55,7 +54,7 @@
 
   </head>
 
-  <body onload="main()">
+  <body onload="main()" onkeydown="_keyCodeEventHandeler(event, true)" onkeyup="_keyCodeEventHandeler(event, false)">
     <center>
     <canvas id="canvas" width="640" height="480">
       Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
