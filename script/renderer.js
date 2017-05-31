@@ -55,7 +55,7 @@ function renderer(){
     mesh_1 = new mesh();
     mesh_2 = new mesh();
 
-    mesh_1.texture = texture.loadTexture("assets/stone.jpg");s
+    mesh_1.texture = texture.loadTexture("assets/stone.jpg");
     mesh_2.texture = texture.loadTexture("assets/galax.jpg");
 
     mesh_1.position[1] = 1;
