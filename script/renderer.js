@@ -66,13 +66,16 @@ function renderer(){
     mesh_1.texture = texture.loadTexture("assets/stone.jpg");
     mesh_2.texture = texture.loadTexture("assets/galax.jpg");
 
-    mesh_1.position[1] = 1;
-    mesh_2.position[1] = -2;
+    //mesh_1.position[1] = 1;
+    //mesh_2.position[1] = -2;
 
-    mesh_1.position[0] = -8;
+    mesh_1.position[0] = -10;
 
-    mesh_1.rotation[0] = 40;
-    mesh_1.rotation[1] = 40;
+    //mesh_1.rotation[0] = 40;
+    //mesh_1.rotation[1] = 40;
+
+    mesh_1.scale = [1,5,5];
+    mesh_2.scale = [1,5,5];
 
     // use the run function
     run();
@@ -134,11 +137,11 @@ function drawScene() {
   render3DCube(mesh_2, camera, shader);
 
   // rotate mesh 1
-  mesh_1.rotation[0] += 0.01;
-  mesh_1.rotation[1] += 0.01;
+  //mesh_1.rotation[0] += 0.01;
+  //mesh_1.rotation[1] += 0.01;
 
   // rotate mesh 2
-  mesh_2.rotation[1] += 0.01;
+  //mesh_2.rotation[1] += 0.01;
   //console.log(1000 * deltatime);
   // move camera
 
@@ -168,15 +171,18 @@ function drawScene() {
   */
 
   // get some mouse info
-  if(input.getMouseDown()){
-    console.log("mouseX: " + input.getMouseX() + " mouseY: " + input.getMouseY() + "!");
-  }
+  //if(input.getMouseDown()){
+  //  console.log("mouseX: " + input.getMouseX() + " mouseY: " + input.getMouseY() + "!");
+  //}
 
   // set camera rotation
-  camera.setYaw(input.getMouseX() * 0.5);
-  camera.setPitch(input.getMouseY() * 0.5)
-
-
+  if(input.isPhoneMovement()){
+    camera.setYaw(-input.getPhoneX());
+    camera.setPitch(input.getPhoneY())
+  }else{
+    camera.setYaw(input.getMouseX());
+    camera.setPitch(-input.getMouseY())
+  }
 }
 
 // render a 3D cube

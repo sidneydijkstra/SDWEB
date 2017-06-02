@@ -1,8 +1,16 @@
 
+// key
 var _keys = [];
+
+// mouse
 var _mouseX = 0;
 var _mouseY = 0;
 var _mouseDown = false;
+
+// phone
+var _phoneX = 0;
+var _phoneY = 0;
+var _isPhoneMovement = false;
 
 // keycodes
 class keyCode{
@@ -98,6 +106,34 @@ function input(){
   this.getMouseY = function(){
     return _mouseY;
   }
+
+  // get if phone movement
+  this.isPhoneMovement = function(){
+    return _isPhoneMovement;
+  }
+
+  // get phone x
+  this.getPhoneX = function(){
+    return _phoneX;
+  }
+
+  // get phone y
+  this.getPhoneY = function(){
+    return _phoneY - 90;
+  }
+
+  // phone movement handeler
+  window.addEventListener('deviceorientation', function(event) {
+    // set phone movement to true
+    if(!_isPhoneMovement){
+      _isPhoneMovement = true;
+    }
+    // print to <p> in index
+    document.getElementById("infotag").innerHTML = "INFO: " + Math.round(event.alpha) + ' : ' + Math.round(event.beta) + ' : ' + Math.round(event.gamma);
+    // set variable
+    _phoneX = event.alpha;
+    _phoneY = event.beta;
+  });
 
 }
 
