@@ -1,6 +1,9 @@
 // global gl variable
 var gl;
 
+// deltatime
+var deltatime = 0;
+
 // global canvas variable
 var canvas;
 
@@ -111,10 +114,15 @@ function run() {
   }
 }
 
+var scene = new scene();
 // draw the scene [main loop]
 function drawScene() {
+  // calculate deltatime
+  calculateDeltaTime();
 
+  // run some updates
   camera.update();
+  scene.update();
 
   // Clear the canvas before we start drawing on it.
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -129,7 +137,7 @@ function drawScene() {
 
   // rotate mesh 2
   mesh_2.rotation[1] += 0.01;
-
+  //console.log(1000 * deltatime);
   // move camera
 
   // left right
@@ -156,7 +164,10 @@ function drawScene() {
     camera.position[1] += 0.1;
   }
 
-
+  // get some mouse info
+  if(input.getMouseDown()){
+    console.log("mouseX: " + input.getMouseX() + " mouseY: " + input.getMouseY() + "!");
+  }
 
 
 }
@@ -329,4 +340,15 @@ function initBuffers() {
   CVIB = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, CVIB);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+}
+
+// some deltatime variable
+var newTime = 0;
+var oldTime = 0;
+// calculate deltatime
+function calculateDeltaTime(){
+  newTime = Date.now() * 0.001;
+  deltatime = newTime - oldTime;
+  oldTime = newTime;
+  //console.log(deltatime);
 }

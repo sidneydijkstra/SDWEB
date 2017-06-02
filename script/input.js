@@ -1,5 +1,8 @@
 
 var _keys = [];
+var _mouseX = 0;
+var _mouseY = 0;
+var _mouseDown = false;
 
 // keycodes
 class keyCode{
@@ -74,13 +77,31 @@ function input(){
   // keycode handeler
   this.keycode = new keyCode();
 
+  // mouse positions
+
   // get key
   this.getKey = function(code){
     return _keys[code];
   }
+
+  // get mouse down
+  this.getMouseDown = function(){
+    return _mouseDown;
+  }
+
+  // get mouse x
+  this.getMouseX = function(){
+    return _mouseX;
+  }
+
+  // get mouse y
+  this.getMouseY = function(){
+    return _mouseY;
+  }
+
 }
 
-// key event handeler
+// key click handeler
 function _keyCodeEventHandeler(event, down){
   // on key down
   if(down && _keys[event.keyCode] != true){
@@ -90,4 +111,16 @@ function _keyCodeEventHandeler(event, down){
   else if(!down && _keys[event.keyCode] != false){
     _keys[event.keyCode] = false;
   }
+}
+
+// mouse click handeler
+function _mouseClickHandeler(event, down){
+  _mouseDown = down;
+}
+
+// mouse movement handeler
+function _mouseMovementHandeler(event){
+    var rect = canvas.getBoundingClientRect();
+    _mouseX = Math.round(event.clientX - rect.left);
+    _mouseY = Math.round(event.clientY - rect.top);
 }
