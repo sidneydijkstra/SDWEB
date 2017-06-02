@@ -69,6 +69,8 @@ function renderer(){
     mesh_1.position[1] = 1;
     mesh_2.position[1] = -2;
 
+    mesh_1.position[0] = -8;
+
     mesh_1.rotation[0] = 40;
     mesh_1.rotation[1] = 40;
 
@@ -140,7 +142,7 @@ function drawScene() {
   //console.log(1000 * deltatime);
   // move camera
 
-  // left right
+  /*
   if(input.getKey(input.keycode.A)){
     camera.position[2] -= 0.1;
   }
@@ -163,11 +165,16 @@ function drawScene() {
   if(input.getKey(input.keycode.SPACE)){
     camera.position[1] += 0.1;
   }
+  */
 
   // get some mouse info
   if(input.getMouseDown()){
     console.log("mouseX: " + input.getMouseX() + " mouseY: " + input.getMouseY() + "!");
   }
+
+  // set camera rotation
+  camera.setYaw(input.getMouseX() * 0.5);
+  camera.setPitch(input.getMouseY() * 0.5)
 
 
 }

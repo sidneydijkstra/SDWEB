@@ -29,5 +29,17 @@ function camera(){
     return modelview;
   }
 
+  // set yaw
+  this.setYaw = function(_yaw){
+    this.yaw = _yaw;
+  }
+
+  // set pitch
+  this.setPitch = function(_pitch){
+    this.pitch = _pitch;
+  }
+
+
+
 
 }
